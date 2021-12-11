@@ -1,5 +1,14 @@
 'use strict';
-
+const methodSucefull = {
+  DELETE:'deleted',
+  POST:'created',
+  PUT:'updated'
+}
+const methodError = {
+  DELETE:'delete',
+  POST:'create',
+  PUT:'update'
+}
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const expect      = require('chai').expect;
@@ -35,10 +44,26 @@ app.route('/')
 
 //For FCC testing purposes
 fccTestingRoutes(app);
-
+app.all(function(req,res,next){
+  let id = req.body._id;
+    if(!id){
+      console.log(id);
+      return next({error:'missing _id'});
+    }
+    next();
+})
 //Routing for API 
-apiRoutes(app);  
-    
+apiRoutes(app);
+app.use(function(req,res){
+  res.send({result:'successfully '+methodSucefull[req.method],'_id':req.body._id});
+});  
+app.use(function(err, req,res,next){
+  if(err){
+    res
+    .status(err.status || 500)
+    .send({error: 'could not '+methodError[req.method], '_id':req.body._id });
+  }
+});
 //404 Not Found Middleware
 app.use(function(req, res, next) {
   res.status(404)

@@ -7,10 +7,10 @@ let issueSchema = new mongoose.Schema({
     issue_title:{type:String,required:true},
     issue_text:{type:String,required:true},
     created_on:{type:Date, default:Date.now,required:true},
-    updated_on:Date,
+    updated_on:{type:Date},
     created_by:{type:String,required:true},
     assigned_to:String,
-    open:Boolean,
+    open:{type:Boolean,default:true},
     status_text:String
 });
 
@@ -18,7 +18,6 @@ let Issue = new mongoose.model('Issue',issueSchema);
 
 const CreateIssue = (obj,done) =>{
     let issue = new Issue(obj);
-    
     issue.save(function(err,data){
         if(err) return console.log(err);
         done(err,data);
@@ -27,7 +26,7 @@ const CreateIssue = (obj,done) =>{
 
 const deleteIssue = (id,done) =>{
     Issue.findByIdAndRemove({_id:id},function(err,remove){
-        if(err) return done({error:'missing _id'},null);
+        if(err) return done(err,null);
         done(null,remove);
     });
 }
@@ -39,8 +38,8 @@ const updateIssue = (_id,obj,done) =>{
     });
 }
 
-const findAll = (done) =>{
-    Issue.find({},function (err,issues){
+const findAll = (obj,done) =>{
+    Issue.find(obj,function (err,issues){
         if(err) console.log(err);
         done(err,issues);
     });
